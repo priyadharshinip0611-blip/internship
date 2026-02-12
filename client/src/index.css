@@ -1,0 +1,64 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Earthy Agricultural Palette */
+  --background: 40 33% 98%;      /* Warm cream/white */
+  --foreground: 120 40% 10%;     /* Deep forest green/black */
+  
+  --primary: 142 56% 35%;        /* Fresh leaf green */
+  --primary-foreground: 0 0% 100%;
+  
+  --secondary: 28 45% 45%;       /* Rich soil brown */
+  --secondary-foreground: 0 0% 100%;
+  
+  --muted: 120 15% 94%;          /* Pale green gray */
+  --muted-foreground: 120 10% 40%;
+  
+  --accent: 45 90% 55%;          /* Harvest gold / Sun */
+  --accent-foreground: 120 40% 10%;
+  
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 0 0% 98%;
+  
+  --border: 120 10% 88%;
+  --input: 120 10% 88%;
+  --ring: 142 56% 35%;
+  
+  --radius: 0.75rem;
+  
+  --font-sans: 'Inter', sans-serif;
+  --font-display: 'Outfit', sans-serif;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display font-semibold tracking-tight;
+  }
+}
+
+/* Custom Animation Utilities */
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.4s ease-out forwards;
+}
+
+.glass-panel {
+  @apply bg-white/80 backdrop-blur-md border border-white/20 shadow-xl;
+}
+
+.card-hover {
+  @apply transition-all duration-300 hover:shadow-lg hover:-translate-y-1 hover:border-primary/20;
+}

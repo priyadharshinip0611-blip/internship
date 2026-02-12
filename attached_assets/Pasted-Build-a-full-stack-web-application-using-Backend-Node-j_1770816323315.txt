@@ -1,0 +1,156 @@
+Build a full-stack web application using:
+
+Backend: Node.js + Express
+Database: MongoDB (use Mongoose)
+Authentication: JWT
+Password Hashing: bcrypt
+Frontend: Basic HTML + CSS + Vanilla JS (no React)
+Structure it cleanly (MVC pattern).
+
+Project Title:
+Farmer-to-Retailer Trading Platform – Week 1 (DB & User Management Only)
+
+====================================
+WEEK 1 REQUIREMENTS (IMPORTANT)
+====================================
+
+This week we are ONLY building:
+
+1. Database Schema
+2. Secure Login System
+3. User Roles (Admin, Farmer, Retailer)
+4. Profile Creation
+5. Farmer Approval System
+6. Field Validation
+
+Do NOT build product listing or payments yet.
+
+====================================
+ROLES
+====================================
+
+There are 3 roles:
+
+1. ADMIN
+   - Can login only (no public registration)
+   - Can approve/reject farmers
+   - Can view all users
+
+2. FARMER
+   - Can register
+   - Must be approved by admin before login works
+   - Has profile fields:
+        name
+        email
+        password
+        phone
+        farmName
+        location
+        isApproved (default false)
+
+3. RETAILER
+   - Can register
+   - Can login directly (no approval needed)
+   - Has profile fields:
+        name
+        email
+        password
+        phone
+        shopName
+        location
+
+====================================
+DATABASE MODELS
+====================================
+
+Create a User model with:
+
+- name (required)
+- email (required, unique)
+- password (hashed)
+- role (enum: admin, farmer, retailer)
+- phone (required)
+- location (required)
+- farmName (only for farmer)
+- shopName (only for retailer)
+- isApproved (default false, only for farmers)
+- createdAt
+
+====================================
+AUTHENTICATION
+====================================
+
+- Use bcrypt to hash passwords
+- Use JWT for authentication
+- Protect routes with middleware
+- Prevent farmer login if isApproved = false
+- Admin account should be created manually when server starts:
+    email: admin@platform.com
+    password: admin123
+
+====================================
+ROUTES
+====================================
+
+POST /api/auth/register
+POST /api/auth/login
+GET /api/admin/users
+PUT /api/admin/approve/:id
+
+====================================
+VALIDATION
+====================================
+
+- Email format validation
+- Password minimum 6 characters
+- Required fields check
+- Prevent duplicate emails
+
+====================================
+FRONTEND PAGES
+====================================
+
+Create simple frontend:
+
+1. index.html (Login Page)
+2. register.html (Choose Farmer or Retailer)
+3. dashboard.html (Different view for each role)
+4. admin.html (Approve farmers)
+
+Use fetch() to call backend APIs.
+
+====================================
+SECURITY
+====================================
+
+- Store JWT in localStorage
+- Use Authorization header
+- Middleware to verify role
+- Hide admin routes from non-admin
+
+====================================
+WEEK 1 OUTPUT EXPECTATION
+====================================
+
+When complete, I should be able to:
+
+1. Register as Farmer
+2. Register as Retailer
+3. Login as Admin
+4. Approve Farmer
+5. Login as Approved Farmer
+6. Login as Retailer
+
+====================================
+CODE STRUCTURE
+====================================
+
+/models
+/routes
+/middleware
+/controllers
+/server.js
+
+Keep code clean and commented.
+
+After generating, explain how to run the project in Replit.

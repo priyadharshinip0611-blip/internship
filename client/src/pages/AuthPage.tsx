@@ -208,12 +208,12 @@ function RegisterForm() {
             onValueChange={(val) => form.setValue("role", val)}
             className="grid grid-cols-2 gap-4">
             <div>
-              <RadioGroupItem value="farmer" id="farmer" />
+              <RadioGroupItem value="FARMER" id="farmer" />
               <Label htmlFor="farmer">Farmer</Label>
             </div>
 
             <div>
-              <RadioGroupItem value="retailer" id="retailer" />
+              <RadioGroupItem value="RETAILER" id="retailer" />
               <Label htmlFor="retailer">Retailer</Label>
             </div>
           </RadioGroup>

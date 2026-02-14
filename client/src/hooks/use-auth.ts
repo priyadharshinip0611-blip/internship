@@ -1,46 +1,15 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
-const BASE_URL = "http://localhost:8080/api/auth";
-
-/* ================= LOGIN ================= */
-
-export function useLogin() {
-  return useMutation({
-    mutationFn: async (credentials) => {
-      const res = await fetch(`${BASE_URL}/login`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email: credentials.email,
-          password: credentials.password,
-        }),
-      });
-
-      if (!res.ok) {
-        const text = await res.text();
-        throw new Error(text || "Login failed");
-      }
-
-      return await res.json();
-    },
-  });
-}
-
-/* ================= REGISTER ================= */
-
-/* ================= GET USER ================= */
+const API = "http://localhost:8080";
 
 export function useUser() {
   return useQuery({
-    queryKey: ["currentUser"],
+    queryKey: ["user"],
     queryFn: async () => {
       const token = localStorage.getItem("token");
-
       if (!token) return null;
 
-      const res = await fetch(`${BASE_URL}/user`, {
+      const res = await fetch(`${API}/api/auth/user`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -50,42 +19,69 @@ export function useUser() {
 
       return await res.json();
     },
-    retry: false,
   });
 }
 
-/* ================= LOGOUT ================= */
+export function useLogin() {
+  const queryClient = useQueryClient();
 
-export function useLogout() {
   return useMutation({
-    mutationFn: async () => {
-      localStorage.removeItem("token");
+    mutationFn: async (data: { email: string; password: string }) => {
+      const res = await fetch(`${API}/api/auth/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.message || "Login failed");
+      }
+
+      return await res.json();
+    },
+
+    onSuccess: (data) => {
+      localStorage.setItem("token", data.token);
+      queryClient.setQueryData(["user"], data.user);
     },
   });
 }
 
 export function useRegister() {
+  const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (data) => {
-      const res = await fetch("http://localhost:8080/api/auth/register", {
+    mutationFn: async (data: any) => {
+      const res = await fetch(`${API}/api/auth/register`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          name: data.name,
-          email: data.email,
-          password: data.password,
-          role: data.role.toUpperCase(), // VERY IMPORTANT
-        }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
       });
 
       if (!res.ok) {
-        const text = await res.text();
-        throw new Error(text || "Registration failed");
+        const err = await res.json();
+        throw new Error(err.message || "Registration failed");
       }
 
-      return await res.text();
+      return await res.json();
+    },
+
+    onSuccess: (data) => {
+      localStorage.setItem("token", data.token);
+      queryClient.setQueryData(["user"], data.user);
+    },
+  });
+}
+
+export function useLogout() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async () => {
+      localStorage.removeItem("token");
+    },
+    onSuccess: () => {
+      queryClient.setQueryData(["user"], null);
     },
   });
 }

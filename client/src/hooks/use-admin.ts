@@ -1,29 +1,44 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import type { User } from "@shared/schema";
+
+const API = "http://localhost:8080";
 
 export function useAllUsers() {
   return useQuery({
-    queryKey: ["/api/admin/users"],
+    queryKey: ["all-users"],
     queryFn: async () => {
-      const res = await fetch("/api/admin/users");
+      const token = localStorage.getItem("token");
+
+      const res = await fetch(`${API}/api/admin/users`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
       if (!res.ok) throw new Error("Failed to fetch users");
-      return await res.json() as User[];
+
+      return await res.json();
     },
   });
 }
 
 export function useApproveUser() {
   const queryClient = useQueryClient();
+
   return useMutation({
-    mutationFn: async (userId: number) => {
-      const res = await fetch(`/api/admin/approve/${userId}`, {
-        method: "PATCH",
+    mutationFn: async (id: number) => {
+      const token = localStorage.getItem("token");
+
+      const res = await fetch(`${API}/api/admin/users/${id}/approve`, {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
+
       if (!res.ok) throw new Error("Failed to approve user");
-      return await res.json() as User;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/admin/users"] });
+      queryClient.invalidateQueries({ queryKey: ["all-users"] });
     },
   });
 }

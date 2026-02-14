@@ -2,20 +2,13 @@ import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Leaf, LogOut } from "lucide-react";
 
-type User = {
-  id: number;
-  name: string;
-  role: string;
-};
-
 export function Navbar() {
   const [, setLocation] = useLocation();
 
-  const storedUser = localStorage.getItem("user");
-  const user: User | null = storedUser ? JSON.parse(storedUser) : null;
+  const token = localStorage.getItem("token");
 
   const handleLogout = () => {
-    localStorage.removeItem("user");
+    localStorage.removeItem("token");
     setLocation("/auth");
   };
 
@@ -32,22 +25,15 @@ export function Navbar() {
         </Link>
 
         <div className="flex items-center gap-4">
-          {user ? (
-            <div className="flex items-center gap-4">
-              <span className="text-sm text-muted-foreground hidden md:inline-block">
-                Welcome,{" "}
-                <span className="font-medium text-foreground">{user.name}</span>
-              </span>
-
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleLogout}
-                className="text-muted-foreground hover:text-destructive">
-                <LogOut className="w-4 h-4 mr-2" />
-                Sign Out
-              </Button>
-            </div>
+          {token ? (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleLogout}
+              className="text-muted-foreground hover:text-destructive">
+              <LogOut className="w-4 h-4 mr-2" />
+              Sign Out
+            </Button>
           ) : (
             <Link href="/auth">
               <Button>Login / Register</Button>

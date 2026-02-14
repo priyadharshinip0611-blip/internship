@@ -1,4 +1,6 @@
-import { Badge, Store, Table } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Store } from "lucide-react";
+
 import {
   Card,
   CardContent,
@@ -6,14 +8,12 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+
 import {
-  useBrowseProducts,
-  usePlaceOrder,
-  useRetailerOrders,
-} from "@/hooks/use-products";
-import { useEffect, useState } from "react";
-import {
+  Table,
   TableBody,
   TableCell,
   TableHead,
@@ -27,7 +27,8 @@ export default function RetailerDashboard({ user }: { user: any }) {
   const token = localStorage.getItem("token");
 
   useEffect(() => {
-    // Fetch Products
+    if (!token) return;
+
     fetch("http://localhost:8080/api/retailer/products", {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -36,7 +37,6 @@ export default function RetailerDashboard({ user }: { user: any }) {
       .then((res) => res.json())
       .then((data) => setProducts(data));
 
-    // Fetch Orders
     fetch("http://localhost:8080/api/retailer/orders", {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -44,9 +44,11 @@ export default function RetailerDashboard({ user }: { user: any }) {
     })
       .then((res) => res.json())
       .then((data) => setOrders(data));
-  }, []);
+  }, [token]);
 
   const placeOrder = async (productId: number) => {
+    if (!token) return;
+
     await fetch(
       `http://localhost:8080/api/retailer/order/${productId}?quantity=1`,
       {
@@ -59,10 +61,11 @@ export default function RetailerDashboard({ user }: { user: any }) {
 
     alert("Order placed successfully!");
 
-    // Reload orders after placing
+    // Reload orders
     const res = await fetch("http://localhost:8080/api/retailer/orders", {
       headers: { Authorization: `Bearer ${token}` },
     });
+
     const updatedOrders = await res.json();
     setOrders(updatedOrders);
   };
@@ -90,12 +93,14 @@ export default function RetailerDashboard({ user }: { user: any }) {
                 <CardTitle>{product.name}</CardTitle>
                 <CardDescription>₹{product.price}</CardDescription>
               </CardHeader>
+
               <CardContent className="space-y-2">
                 <p>Stock: {product.stock}</p>
+
                 <Button
                   onClick={() => placeOrder(product.id)}
                   disabled={product.stock === 0}>
-                  Order
+                  {product.stock === 0 ? "Out of Stock" : "Order"}
                 </Button>
               </CardContent>
             </Card>
@@ -107,26 +112,33 @@ export default function RetailerDashboard({ user }: { user: any }) {
       <div>
         <h2 className="text-2xl font-bold mb-4">My Orders</h2>
 
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Product</TableHead>
-              <TableHead>Quantity</TableHead>
-              <TableHead>Status</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {orders.map((order) => (
-              <TableRow key={order.id}>
-                <TableCell>{order.product?.name}</TableCell>
-                <TableCell>{order.quantity}</TableCell>
-                <TableCell>
-                  <Badge>{order.status}</Badge>
-                </TableCell>
+        {orders.length === 0 ? (
+          <p className="text-muted-foreground">No orders placed yet</p>
+        ) : (
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Product</TableHead>
+                <TableHead>Quantity</TableHead>
+                <TableHead>Total</TableHead>
+                <TableHead>Status</TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+            </TableHeader>
+
+            <TableBody>
+              {orders.map((order) => (
+                <TableRow key={order.id}>
+                  <TableCell>{order.product?.name}</TableCell>
+                  <TableCell>{order.quantity}</TableCell>
+                  <TableCell>₹{order.totalPrice}</TableCell>
+                  <TableCell>
+                    <Badge>{order.status ?? "PENDING"}</Badge>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        )}
       </div>
     </div>
   );
